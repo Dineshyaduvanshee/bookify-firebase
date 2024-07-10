@@ -8,7 +8,7 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs,doc,getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Firebase Configuration
@@ -54,12 +54,13 @@ export const FirebaseProvider = ({ children }) => {
 
   const handleCreateNewListing = async (name, isbn, price, coverPic) => {
     const imageRef = ref(storage, `uploads/images/${Date.now()}-${coverPic.name}`);
-    const uploadResult = await uploadBytes(imageRef, coverPic);
+    await uploadBytes(imageRef, coverPic);
+    const imageURL = await getDownloadURL(imageRef);
     await addDoc(collection(firestore, 'books'), {
       name,
       isbn,
       price,
-      imageURL: await getDownloadURL(imageRef),
+      imageURL,
       userID: user.uid,
       userEmail: user.email,
       displayName: user.displayName,
@@ -69,13 +70,32 @@ export const FirebaseProvider = ({ children }) => {
 
   const listAllBooks = () => getDocs(collection(firestore, 'books'));
 
-  const getBookById = async (id) =>{
-    const docRef = doc(firestore, 'books',id);
+  const getBookById = async (id) => {
+    const docRef = doc(firestore, 'books', id);
     const result = await getDoc(docRef);
     return result;
-  }
+  };
 
   const getImageURL = (path) => getDownloadURL(ref(storage, path));
+
+  const placeOrder = async (bookId, qty) => {
+    const collectionRef = collection(firestore, 'books', bookId, 'orders');
+    await addDoc(collectionRef, {
+      userID: user.uid,
+      userEmail: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      qty: Number(qty),
+    });
+  };
+
+  const fetchMyBooks = async () => {
+    if (!user) return [];
+    const collectionRef = collection(firestore, "books");
+    const q = query(collectionRef, where("userID", "==", user.uid));
+    const result = await getDocs(q);
+    return result.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  };
 
   const isLoggedIn = !!user;
 
@@ -90,6 +110,8 @@ export const FirebaseProvider = ({ children }) => {
         listAllBooks,
         getImageURL,
         getBookById,
+        placeOrder,
+        fetchMyBooks,
       }}
     >
       {children}

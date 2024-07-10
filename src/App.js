@@ -2,6 +2,7 @@
 import RegisterPage from './pages/Register';
 import LoginPage from './pages/Login';
 import DetailPage from './pages/Detail';
+import OrdersPage from './pages/ViewOrder';
 //css
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,6 +20,7 @@ function App() {
             <Route path="/register" element={<RegisterPage/>}/>
             <Route path="/book/list" element={<ListingPage/>}/>
             <Route path="/book/view/:bookId" element={<DetailPage/>}/>
+            <Route path="/book/orders" element={<DetailPage/>}/>
       </Routes>
   </div>
 }

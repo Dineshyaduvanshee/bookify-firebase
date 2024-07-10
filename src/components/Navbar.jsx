@@ -14,6 +14,7 @@ const MyNavBar = () => {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/book/list">Add Listing</Nav.Link>
+            <Nav.Link as={Link} to="/book/orders">Orders</Nav.Link>
           </Nav>
           <Form className="d-flex me-3">
             <FormControl
