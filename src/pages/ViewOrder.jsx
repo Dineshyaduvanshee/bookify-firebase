@@ -6,16 +6,16 @@ const OrdersPage = () => {
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const books = await firebase.fetchMyBooks();
-        setBooks(books);
-      } catch (error) {
-        console.error('Error fetching books:', error);
-      }
-    };
-    fetchBooks();
+    if(firebase.isLoggedIn) {
+        const fetchBooks = async () => {
+            firebase.fetchMyBooks().then((books) => setBooks(books.docs));
+          };
+          fetchBooks();
+    }
+   
   }, [firebase]);
+  console.log(books);
+  if(!firebase.isLoggedIn) return <h1>please login</h1>
 
   if (books.length === 0) {
     return <div>No books found</div>;
@@ -43,3 +43,4 @@ const OrdersPage = () => {
 };
 
 export default OrdersPage;
+

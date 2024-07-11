@@ -81,21 +81,24 @@ export const FirebaseProvider = ({ children }) => {
   const placeOrder = async (bookId, qty) => {
     const collectionRef = collection(firestore, 'books', bookId, 'orders');
     await addDoc(collectionRef, {
-      userID: user.uid,
-      userEmail: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      qty: Number(qty),
+        userID: user.id,
+        userEmail: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        qty: Number(qty),
     });
   };
 
-  const fetchMyBooks = async () => {
-    if (!user) return [];
+  const fetchMyBooks = async (userId) => {
+    if (!user) return null;
     const collectionRef = collection(firestore, "books");
-    const q = query(collectionRef, where("userID", "==", user.uid));
+    const q = query(collectionRef, where("userID", "==", userId));
     const result = await getDocs(q);
-    return result.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return result;
+   // return result.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   };
+
+
 
   const isLoggedIn = !!user;
 
@@ -112,6 +115,7 @@ export const FirebaseProvider = ({ children }) => {
         getBookById,
         placeOrder,
         fetchMyBooks,
+        user
       }}
     >
       {children}
